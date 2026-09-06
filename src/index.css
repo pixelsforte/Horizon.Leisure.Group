@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-gold-50: #fbf8f3;
+  --color-gold-100: #f4edd9;
+  --color-gold-200: #e5d7af;
+  --color-gold-300: #d1b87a;
+  --color-gold-400: #c09f53;
+  --color-gold-500: #aa863e;
+  --color-gold-600: #8d6b30;
+  --color-gold-700: #6e5124;
+  --color-gold-800: #503a1b;
+  --color-gold-900: #382714;
+  
+
+  --color-dark-green-950: #0d3b0d;
+  --color-dark-green-900: #0a2e0a;
+  --color-dark-green-800: #112d11;
+  --color-dark-green-700: #112d11;
+  --color-dark-green-600: #0a2e0a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fcfbfa;
+  color: #1a2a22;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a2e0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #c09f53;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aa863e;
+}
+
+/* Navigation active line style */
+.nav-link-active {
+  color: #c09f53;
+  font-weight: 500;
+}
+
+/* Soft scroll padding */
+html {
+  scroll-padding-top: 80px;
+}
+
+/* Infinite Horizontal Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
