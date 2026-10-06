@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 import mongoose, { Schema, Document } from "mongoose";
 
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function getMongoURI(): string | undefined {
   let uri = process.env.MONGODB_URI;
 
@@ -691,7 +695,8 @@ export const dbService = {
     if (isConnected()) {
       const query: any = {};
       if (search && search.trim() !== "") {
-        const regex = new RegExp(search.trim(), "i");
+        const safeSearch = escapeRegExp(search.trim());
+        const regex = new RegExp(safeSearch, "i");
         query.$or = [{ name: regex }, { email: regex }, { phone: regex }];
       }
 
