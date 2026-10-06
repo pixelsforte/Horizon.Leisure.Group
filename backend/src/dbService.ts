@@ -279,8 +279,9 @@ export function isConnected(): boolean {
 export const dbService = {
   // --- Admin Queries ---
   async getAdminByUsername(username: string): Promise<IAdmin | null> {
+    if (typeof username !== "string") return null;
     if (isConnected()) {
-      const adminDoc = await AdminModel.findOne({ username });
+      const adminDoc = await AdminModel.findOne({ username: { $eq: username } });
       if (!adminDoc) return null;
       return {
         id: adminDoc._id.toString(),
