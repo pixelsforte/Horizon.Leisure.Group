@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import backendRouter, { seedDefaultAdmin } from "./backend/src/app";
@@ -6,7 +7,18 @@ import { connectDb } from "./backend/src/dbService";
 
 async function startServer() {
   const app = express();
+  // Needed so rate limiting sees each visitor's real IP behind the hosting proxy
+  app.set("trust proxy", 1);
 const PORT = Number(process.env.PORT) || 3000;
+
+  // 0. Global rate limit (per IP) applied before every route below
+  const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 1000,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+  });
+  app.use(globalLimiter);
 
   // 1. Setup global express request parsers
   app.use(express.json());
@@ -42,7 +54,13 @@ const PORT = Number(process.env.PORT) || 3000;
     console.log("Production static distribution serving mode initialized.");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    const pageLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      limit: 300,
+      standardHeaders: "draft-7",
+      legacyHeaders: false,
+    });
+    app.get("*", pageLimiter, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
