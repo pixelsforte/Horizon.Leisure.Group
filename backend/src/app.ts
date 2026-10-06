@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import { dbService, connectDb } from "./dbService";
 import { hashPassword, verifyPassword, generateToken, verifyToken } from "./auth";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
@@ -65,6 +66,45 @@ router.use((req, res, next) => {
   console.log(`[API ${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
+
+// ---------------------------------------------------------------------------
+// Rate limiting (per IP)
+// ---------------------------------------------------------------------------
+const tooMany = { error: "Too many requests. Please try again later." };
+
+// General limit for every API route
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: tooMany,
+});
+
+// Strict limit for login / password / settings-security routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: tooMany,
+});
+
+// Public forms (bookings, partnerships) - stop spam
+const publicFormLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: tooMany,
+});
+
+router.use(generalLimiter);
+router.use("/auth", authLimiter);
+router.use("/admin", authLimiter);
+router.use("/hlg-portal/admin", authLimiter);
+router.post("/bookings", publicFormLimiter);
+router.post("/partnerships", publicFormLimiter);
 
 // ---------------------------------------------------------------------------
 // 1. PUBLIC ENDPOINTS
